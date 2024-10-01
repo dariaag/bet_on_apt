@@ -1,0 +1,16 @@
+[package]
+name = "bet_on_apt"
+version = "1.0.0"
+authors = []
+
+[addresses]
+my_addr = '4e51336951b49b1fd34057930975dc733de2a876fd942f791c4527553e63ac8f'
+
+[dev-addresses]
+
+[dependencies.AptosFramework]
+git = "https://github.com/aptos-labs/aptos-core.git"
+rev = "mainnet"
+subdir = "aptos-move/framework/aptos-framework"
+
+[dev-dependencies]
