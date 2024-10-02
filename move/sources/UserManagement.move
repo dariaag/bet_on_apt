@@ -15,7 +15,7 @@ module my_addr::UserManagement {
     struct UserRegisteredEvent has copy, drop,store  {
         user: address,
     }
-
+    #[event]
     struct UserBalanceUpdatedEvent has copy, drop, store {
         user:address,
         balance: u64,
@@ -58,5 +58,37 @@ module my_addr::UserManagement {
         assert!(exists<User>(user_address), error::not_found(EUSER_NOT_REGISTERED));
         let user = borrow_global_mut<User>(user_address);
         user.balance = user.balance + amount;
+        event::emit(UserBalanceUpdatedEvent { user: user_address, balance: user.balance });
     }
+
+    public entry fun withdraw(account: &signer, amount: u64) acquires User {
+        let user_address = signer::address_of(account);
+        assert!(exists<User>(user_address), error::not_found(EUSER_NOT_REGISTERED));
+        let user = borrow_global_mut<User>(user_address);
+        assert!(user.balance >= amount, error::invalid_argument(EINSUFFICIENT_BALANCE));
+        user.balance = user.balance - amount;
+        event::emit(UserBalanceUpdatedEvent { user: user_address, balance: user.balance });
+    }
+
+    public fun get_balance(user_address: address): u64 acquires User {
+        assert!(exists<User>(user_address), error::not_found(EUSER_NOT_REGISTERED));
+        let user = borrow_global<User>(user_address);
+        user.balance
+    }
+
+    public fun record_transaction(user_address: address, amount: u64) acquires User {
+        assert!(exists<User>(user_address), error::not_found(EUSER_NOT_REGISTERED));
+        let user = borrow_global_mut<User>(user_address);
+        vector::push_back(&mut user.transaction_history, amount);
+    }
+
+    public fun get_transaction_history(user_address: address): vector<u64> acquires User {
+        assert!(exists<User>(user_address), error::not_found(EUSER_NOT_REGISTERED));
+        let user = borrow_global<User>(user_address);
+        user.transaction_history
+    }
+
+    
+
+
 }
